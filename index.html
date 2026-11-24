@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
 <style>
 :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 body { margin: 0; }
@@ -37,26 +38,32 @@ img { max-width: 100%; }
   --event-bg: #ece5fa;
   --warn: #a3450e;
   --warn-bg: #fcecdf;
+  --cal-alt: #f7f9fc;
   --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
   --font-num: "Barlow Semi Condensed", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
   --lane-w: 96px;
   --body-min: 1040px;
+  --cm-w: 64px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0e141d; --surface: #151d29; --surface-2: #1b2533; --ink: #e4e9f1; --muted: #9ca7b8;
     --line: #2c3748; --grid: #1f2936; --accent: #8bb7f6; --accent-soft: #1f3354; --national: #929cad;
     --exam: #ff8a9e; --exam-bg: #3a1e27; --holiday: #f0bd57; --holiday-bg: #392c12; --break: #66c8ed;
-    --break-bg: #12303d; --event: #b9a2ff; --event-bg: #2b2244; --warn: #ffae78; --warn-bg: #3a2416; color-scheme: dark;
+    --break-bg: #12303d; --event: #b9a2ff; --event-bg: #2b2244; --warn: #ffae78; --warn-bg: #3a2416; --cal-alt: #18212e; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0e141d; --surface: #151d29; --surface-2: #1b2533; --ink: #e4e9f1; --muted: #9ca7b8;
   --line: #2c3748; --grid: #1f2936; --accent: #8bb7f6; --accent-soft: #1f3354; --national: #929cad;
   --exam: #ff8a9e; --exam-bg: #3a1e27; --holiday: #f0bd57; --holiday-bg: #392c12; --break: #66c8ed;
-  --break-bg: #12303d; --event: #b9a2ff; --event-bg: #2b2244; --warn: #ffae78; --warn-bg: #3a2416; color-scheme: dark;
+  --break-bg: #12303d; --event: #b9a2ff; --event-bg: #2b2244; --warn: #ffae78; --warn-bg: #3a2416; --cal-alt: #18212e; color-scheme: dark;
 }
 
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--bg);
+}
 body {
   background: var(--bg);
   color: var(--ink);
@@ -106,9 +113,20 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
 .lg-dm.tent { background: var(--surface); border: 2px solid var(--accent); }
 .lg-ring { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--national); display: inline-block; }
 .lg-mtg { width: 0; height: 14px; border-left: 2px dashed var(--accent); display: inline-block; }
+.lg-mtg.tent { border-left-style: dotted; }
+.lg-ring.est { border-color: var(--warn); border-style: dashed; }
+.lg-ev { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); display: inline-block; }
 
-/* Division filter */
-.filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 16px 16px 0; }
+/* View switch and division filter */
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; padding: 16px 16px 0; }
+.views { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); }
+.views a {
+  font-size: 15px; font-weight: 700; line-height: 1.2; padding: 7px 18px; border-radius: 7px;
+  border: 1.5px solid transparent; color: var(--muted); text-decoration: none;
+}
+.views a:hover { color: var(--ink); }
+.views a[aria-current="true"] { background: var(--surface); border-color: var(--accent); color: var(--accent); }
+.filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .filter-k { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); margin-right: 2px; }
 .div-toggle, .all-btn {
   font: inherit; font-size: 14px; line-height: 1.2; padding: 7px 14px; border-radius: 999px;
@@ -120,7 +138,7 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
 .div-toggle:focus-visible, .all-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Timeline panel */
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: clip; }
 .hint { display: none; padding: 8px 16px 0; font-size: 13px; color: var(--muted); }
 @media (max-width: 1100px) { .hint { display: block; } }
 .tl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 12px; }
@@ -191,6 +209,103 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
 .ml:hover { border-color: var(--accent); }
 .ml.tent b::after { content: "（暫定）"; font-family: var(--font-body); font-size: 11px; font-weight: 500; color: var(--muted); }
 
+/* Calendar: continuous week rows (Sun–Sat) from Dec to May; becomes a month-grouped list when narrow */
+.cal-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; padding: 14px 16px 0; }
+.jump { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.mj {
+  font: inherit; font-size: 14px; line-height: 1.2; padding: 5px 11px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.mj:hover { border-color: var(--accent); color: var(--accent); }
+.mj:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cal-hint { margin: 0; font-size: 13px; color: var(--muted); }
+.cal { container: cal / inline-size; margin-top: 12px; border-top: 1px solid var(--line); }
+
+.cg-head, .cg-week { display: grid; grid-template-columns: var(--cm-w) repeat(7, minmax(0, 1fr)); }
+.cg-head {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+  font-size: 13px; font-weight: 700; color: var(--muted); text-align: center;
+}
+.cg-head span { padding: 6px 0; }
+.cg-week { min-height: 84px; scroll-margin-top: 40px; }
+.cg-head + .cg-week > .cm, .cg-head + .cg-week > .cd { border-top: 0; }
+.cm {
+  grid-column: 1; grid-row: 1 / -1; padding: 6px 8px 6px 14px;
+  border-top: 1px solid var(--grid); font-weight: 700; font-size: 15px; line-height: 1.3;
+}
+.cm.has { border-top-color: var(--line); }
+.cm .yr { display: block; font-weight: 500; font-size: 12px; color: var(--muted); }
+.cd {
+  grid-row: 1 / -1; min-width: 0; display: flex; align-items: flex-start; gap: 6px; padding: 3px 7px;
+  border-top: 1px solid var(--grid); border-left: 1px solid var(--grid); background: var(--surface);
+}
+.cd.alt { background: var(--cal-alt); }
+.cd.out { background: var(--bg); }
+.cd.out .dn { opacity: 0.45; }
+.cd.edge-t { border-top: 2px solid var(--national); }
+.cd.edge-l { border-left: 2px solid var(--national); }
+.dn { font-family: var(--font-num); font-size: 15px; font-weight: 600; line-height: 22px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dn.first { color: var(--ink); font-weight: 700; }
+.cd.hol .dn { color: var(--holiday); font-weight: 700; }
+.cd.is-today { box-shadow: inset 0 0 0 2px var(--exam); }
+.cd.is-today .dn, .tlab { color: var(--exam); font-weight: 700; }
+.tlab { font-size: 12px; line-height: 22px; }
+
+.cb {
+  display: flex; align-items: flex-start; gap: 6px; min-width: 0;
+  padding: 2px 6px; border-radius: 5px; border: 1px solid transparent;
+  font-size: 12.5px; line-height: 1.4; color: var(--ink); text-decoration: none; overflow-wrap: anywhere;
+}
+.cb > i { flex: none; margin-top: 0.4em; }
+.cb > .lg-dm { margin-inline: 1px; }
+.cb > .lg-mtg { margin-top: 2px; height: 14px; }
+.ct { min-width: 0; }
+.ctag { font-weight: 700; margin-right: 0.4em; }
+.cr { margin-left: 0.5em; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.cb.k-holiday { background: var(--holiday-bg); border-color: var(--holiday); color: var(--holiday); }
+.cb.k-exam { background: var(--exam-bg); border-color: var(--exam); color: var(--exam); }
+.cb.k-break { background: var(--break-bg); border-color: var(--break); color: var(--break); }
+.cb.k-event { background: var(--event-bg); border-color: var(--event); color: var(--event); }
+.cb.est { border-style: dashed; }
+.cb.k-ms { background: var(--surface); border-color: var(--accent); }
+.cb.k-ms.tent { border-style: dashed; }
+.cb.k-ms .ctag, .cb.k-nat .ctag { color: var(--muted); }
+.cb.k-ev { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+.cb.k-mtg { color: var(--accent); font-weight: 700; }
+.cb.k-nat { color: var(--muted); }
+.cb.k-nat.est { color: var(--warn); }
+a.cb:hover { border-color: var(--accent); }
+a.cb:hover .ct { text-decoration: underline; }
+a.cb:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 5px; }
+.cg-week > .cb { margin: 1px 4px; align-self: start; }
+.cg-week > .cb.cont-l { margin-left: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.cg-week > .cb.cont-r { margin-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+
+.ag { display: none; }
+.ag-mh {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 3; margin: 0;
+  padding: 8px 16px; background: var(--surface-2); border-bottom: 1px solid var(--line);
+  font-size: 16px; line-height: 1.4;
+}
+.ag-m + .ag-m .ag-mh { border-top: 1px solid var(--line); }
+.ag-list { list-style: none; margin: 0; padding: 0; }
+.ag-row { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 12px; padding: 10px 16px; }
+.ag-row + .ag-row, .ag-today + .ag-row, .ag-row + .ag-today { border-top: 1px solid var(--grid); }
+.ag-d b { display: block; font-family: var(--font-num); font-size: 19px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.ag-d small { display: block; font-size: 12px; color: var(--muted); }
+.ag-row.hol .ag-d b { color: var(--holiday); }
+.ag-row.carry .ag-d b { font-family: var(--font-body); font-size: 14px; color: var(--muted); }
+.ag-row.is-today .ag-d b, .ag-row.is-today .ag-d small { color: var(--exam); }
+.ag-items { display: grid; gap: 5px; min-width: 0; }
+.ag-today { display: flex; align-items: center; gap: 10px; padding: 6px 16px; font-size: 13px; font-weight: 700; color: var(--exam); }
+.ag-today::after { content: ""; flex: 1; border-top: 2px solid var(--exam); }
+.ag-empty { padding: 12px 16px; color: var(--muted); }
+@container cal (width < 700px) {
+  .cg { display: none; }
+  .ag { display: block; }
+}
+
 /* Principles */
 .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px 28px; }
 .rule { border-top: 2px solid var(--accent); padding-top: 10px; min-width: 0; }
@@ -250,7 +365,7 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
 <body>
 <div class="wrap">
   <header class="head">
-    <div class="eyebrow">基隆圈 · <span class="num">2026/12 – 2027/5</span></div>
+    <div class="eyebrow">基隆圈 · <span class="num">2026/11 – 2027/5</span></div>
     <h1>學生部上半年時程</h1>
     <p class="lead">基隆圈每個期限都比全國早。這頁說明每個日期為什麼這樣排，拖到全國截止會遇到什麼問題。進度請到追蹤表更新，開圈企畫會時看儀表板。</p>
     <div class="next" id="next" hidden></div>
@@ -262,13 +377,23 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
     </nav>
   </header>
 
-  <section class="panel" aria-label="12 月到 5 月時間軸">
-    <div class="filter" role="group" aria-label="選擇要看的部別">
-      <span class="filter-k">顯示</span>
-      <button type="button" class="div-toggle" id="tg-u" data-key="u" aria-pressed="true">大學部</button>
-      <button type="button" class="div-toggle" id="tg-j" data-key="j" aria-pressed="true">國中部</button>
-      <button type="button" class="div-toggle" id="tg-s" data-key="s" aria-pressed="true">高中部</button>
-      <button type="button" class="all-btn" id="tg-all" hidden>全部顯示</button>
+  <section class="panel" aria-label="11 月底到 5 月時程">
+    <div class="bar">
+      <nav class="views" aria-label="檢視方式">
+        <a href="#timeline" data-view="timeline" aria-current="true">時間軸</a>
+        <a href="#calendar" data-view="calendar" aria-current="false">行事曆</a>
+      </nav>
+      <div class="filter" role="group" aria-label="選擇要看的部別">
+        <span class="filter-k">顯示</span>
+        <button type="button" class="div-toggle" id="tg-u" data-key="u" aria-pressed="true">大學部</button>
+        <button type="button" class="div-toggle" id="tg-j" data-key="j" aria-pressed="true">國中部</button>
+        <button type="button" class="div-toggle" id="tg-s" data-key="s" aria-pressed="true">高中部</button>
+        <button type="button" class="all-btn" id="tg-all" hidden>全部顯示</button>
+      </div>
+      <div class="filter" role="group" aria-label="國三、高三的大考">
+        <span class="filter-k">國三・高三</span>
+        <button type="button" class="div-toggle" id="tg-grad" aria-pressed="false">學測・統測・會考</button>
+      </div>
     </div>
     <div class="legend">
       <span><i class="lg-dm"></i>基隆圈期限</span>
@@ -281,16 +406,30 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
       <span><i class="sw event"></i>地區友好總會</span>
       <span><i class="sw est"></i>虛線＝估計</span>
     </div>
-    <p class="hint">時間軸可以左右滑動；點期限可以跳到下面的說明。</p>
-    <div class="tl-scroll">
-      <div class="tl" id="tl"></div>
+    <div id="view-timeline">
+      <p class="hint">時間軸可以左右滑動；點期限可以跳到下面的說明。</p>
+      <div class="tl-scroll">
+        <div class="tl" id="tl"></div>
+      </div>
+    </div>
+    <div id="view-calendar" hidden>
+      <div class="cal-top">
+        <div class="jump" id="jump" role="group" aria-label="跳到月份">
+          <span class="filter-k">跳到</span>
+        </div>
+        <p class="cal-hint">點期限可以跳到下面的說明。</p>
+      </div>
+      <div class="cal">
+        <div class="cg" id="cg"></div>
+        <div class="ag" id="ag"></div>
+      </div>
     </div>
   </section>
 
   <section class="rules" aria-label="排程原則">
     <div class="rule">
       <h3>考試週不排事</h3>
-      <p>海大期末考、國高中段考、學測、統測、會考那幾週，不安排任何學生部的事。</p>
+      <p>海大期末考、國高中期末考和段考那幾週，不安排任何學生部的事。</p>
     </div>
     <div class="rule">
       <h3>寒假拿來練勤行</h3>
@@ -312,7 +451,7 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
       <li>讀書心得的書目要等全國企劃公布，往年在 <span class="num">12/30–1/11</span>。2024 年是《法華經的智慧（上）》、2025 年是《新．人間革命》第 6 卷〈雄鷹篇〉、2026 年兩本擇一，所以 <span class="num">12/20</span> 前先確定同學兩本都有。</li>
       <li>大學部勤行認證的全國截止日：2024–2026 年都是報名截止後 3 天（報名 2/27、認證 3/2，在雄鷹會前 13–15 天）。今年報名截止 <span class="num">2/21</span>，推算認證截止約 <span class="num">2/24</span>，所以基隆圈排在 <span class="num">2/23</span> 前。全國企劃往年在 12/30–1/11 寄出，出來後再核對。</li>
       <li>廣布先鋒獎的弘教統計區間今年還沒公布；往年算到報名截止，今年推估到 <span class="num">2/21</span>。</li>
-      <li>基隆市國中、高中的行事曆沒找到，國中期末考、段考日期是依全國預設推估的。<span class="num">4/30</span> 國高中是否放補假也還沒確認。</li>
+      <li>基隆市國中的行事曆沒找到，國中期末考、國高中第二學期段考是依全國預設推估的。高中期末考 <span class="num">1/18–1/20</span> 是基隆高中、基隆女中的行事曆，其他高中沒找到。<span class="num">4/30</span> 國高中是否放補假也還沒確認。</li>
       <li>媒體說 2027 年沒有補班日，還沒從官方確認。</li>
     </ul>
   </section>
@@ -321,8 +460,9 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
     <h2>資料來源</h2>
     <ul>
       <li><a href="https://matsu.ntou.edu.tw/var/file/46/1046/img/628808302.pdf" target="_blank" rel="noopener">國立臺灣海洋大學 115 學年度行事曆</a>（行政會議前版本）：期末考 12/21–12/25、寒假約 12/28–2/21、期中考 4/12–4/16</li>
-      <li><a href="https://www.ceec.edu.tw/files/file_pool/1/0q134628314034791096/116%E5%AD%B8%E5%B9%B4%E5%BA%A6%E5%90%84%E9%A0%85%E8%80%83%E8%A9%A6%E6%9A%AB%E5%AE%9A%E5%A0%B1%E5%90%8D%E8%88%87%E8%80%83%E8%A9%A6%E6%97%A5%E6%9C%9F.pdf" target="_blank" rel="noopener">大考中心 116 學年度各項考試暫定日期</a>：英聽 12/12、學測 1/22–1/24</li>
+      <li><a href="https://www.ceec.edu.tw/files/file_pool/1/0q134628314034791096/116%E5%AD%B8%E5%B9%B4%E5%BA%A6%E5%90%84%E9%A0%85%E8%80%83%E8%A9%A6%E6%9A%AB%E5%AE%9A%E5%A0%B1%E5%90%8D%E8%88%87%E8%80%83%E8%A9%A6%E6%97%A5%E6%9C%9F.pdf" target="_blank" rel="noopener">大考中心 116 學年度各項考試暫定日期</a>：學測 1/22–1/24</li>
       <li><a href="https://www.tcte.edu.tw/index.php?mod=TVETest%2Finfo4y" target="_blank" rel="noopener">技專校院入學測驗中心</a>：統測 4/24–4/25</li>
+      <li><a href="https://www.klsh.kl.edu.tw/wp-content/uploads/sites/36/2026/08/115%E5%AD%B8%E5%B9%B4%E7%AC%AC%E4%B8%80%E5%AD%B8%E6%9C%9F%E8%A1%8C%E4%BA%8B%E6%9B%86.pdf" target="_blank" rel="noopener">國立基隆高中 115 學年度第一學期行事曆</a>、<a href="https://www.klgsh.kl.edu.tw/wp-content/uploads/sites/67/2026/09/115-1-%E6%9C%9F%E5%88%9D%E6%A0%A1%E5%8B%99%E6%9C%83%E8%AD%B0%E7%B4%80%E9%8C%84.pdf" target="_blank" rel="noopener">國立基隆女中 115-1 期初校務會議紀錄</a>：高一、高二期末考 1/18–1/20</li>
       <li>國定假日：媒體轉述的人事行政總處 2027 年行事曆，並與海大行事曆交叉比對。國中寒假、段考：全國預設行事曆。</li>
     </ul>
   </section>
@@ -332,7 +472,7 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
 
 <script>
 (function () {
-  const START = "2026-12-01";
+  const START = "2026-11-22";
   const END = "2027-06-01";
   const WD = "日一二三四五六";
 
@@ -369,9 +509,9 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
   ];
 
   const sharedYouthNat = [
-    { type: "lead", from: "2027-02-28", to: "2027-03-31", t: "全國提報截止 3/31・早 31 天" },
-    { type: "lead", from: "2027-03-31", to: "2027-04-30", t: "全國信心履歷截止 4/30・早 30 天" },
-    { type: "lead", from: "2027-04-16", to: "2027-05-31", t: "全國勤行認證截止 5/31・早 45 天" },
+    { type: "lead", from: "2027-02-28", to: "2027-03-31", t: "全國提報截止 3/31・早 31 天", cal: "全國提報截止" },
+    { type: "lead", from: "2027-03-31", to: "2027-04-30", t: "全國信心履歷截止 4/30・早 30 天", cal: "全國信心履歷截止" },
+    { type: "lead", from: "2027-04-16", to: "2027-05-31", t: "全國勤行認證截止 5/31・早 45 天", cal: "全國勤行認證截止" },
   ];
   const sharedYouthMs = [
     { s: "2026-12-21", t: "人選・陪同者", href: "g-1221" },
@@ -400,15 +540,16 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
       key: "u", label: "大學部", note: "海大行事曆",
       bands: [
         { s: "2026-12-01", e: "2026-12-24", t: "地區友好總會：北區到 12/20、東區到 12/24", k: "event" },
-        { s: "2026-12-21", e: "2026-12-25", t: "期末考", k: "exam" },
-        { s: "2026-12-28", e: "2027-02-21", t: "寒假：還不會的同學每週線上陪練 1–2 次", k: "break" },
+        { s: "2026-12-21", e: "2026-12-25", t: "期末考", k: "exam", href: "u-exam" },
+        { s: "2026-12-28", e: "2027-02-21", t: "寒假：還不會的同學每週線上陪練 1–2 次", k: "break", href: "u-break" },
         { s: "2027-04-12", e: "2027-04-16", t: "期中考", k: "exam" },
       ],
       nat: [
-        { type: "lead", from: "2027-01-31", to: "2027-02-21", t: "全國報名截止 2/21・早 21 天" },
-        { type: "est", at: "2027-02-24", t: "全國認證截止未公布，推估約 2/24" },
+        { type: "lead", from: "2027-01-31", to: "2027-02-21", t: "全國報名截止 2/21・早 21 天", cal: "全國報名截止" },
+        { type: "est", at: "2027-02-24", t: "全國認證截止未公布，推估約 2/24", cal: "全國認證截止（推估）" },
       ],
       ms: [
+        { s: "2026-11-23", e: "2026-11-29", t: "人事提報第一波（已確定的人選）", href: "u-1123" },
         { s: "2026-12-20", t: "人選・履歷定稿・有書・已會勤行者認證", href: "u-1220" },
         { s: "2026-12-27", t: "人事提報截止", href: "u-1227" },
         { s: "2027-01-26", t: "方便品・心得開始寫", href: "u-0126", tent: true },
@@ -423,20 +564,20 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
       key: "j", label: "國中部", note: "國中班長・估計",
       bands: [
         { s: "2027-01-11", e: "2027-01-15", t: "期末考（約）", k: "exam", est: true },
-        { s: "2027-01-21", e: "2027-02-10", t: "寒假：每週固定練勤行", k: "break" },
+        { s: "2027-01-21", e: "2027-02-10", t: "寒假：每週固定練勤行", k: "break", href: "g-break" },
         { s: "2027-04-19", e: "2027-04-23", t: "段考（約）", k: "exam", est: true },
-        { s: "2027-05-15", e: "2027-05-16", t: "會考", k: "exam" },
+        { s: "2027-05-15", e: "2027-05-16", t: "會考", k: "exam", grad: true },
       ],
       nat: sharedYouthNat, ms: sharedYouthMs,
     },
     {
       key: "s", label: "高中部", note: "高中鳳雛長・估計",
       bands: [
-        { s: "2026-12-12", e: "2026-12-12", t: "英聽", k: "exam" },
-        { s: "2027-01-22", e: "2027-01-24", t: "學測", k: "exam" },
-        { s: "2027-01-21", e: "2027-02-10", t: "寒假（約）：每週固定練勤行", k: "break", est: true },
+        { s: "2027-01-18", e: "2027-01-20", t: "期末考", k: "exam" },
+        { s: "2027-01-22", e: "2027-01-24", t: "學測", k: "exam", grad: true },
+        { s: "2027-01-21", e: "2027-02-10", t: "寒假（約）：每週固定練勤行", k: "break", est: true, href: "g-break" },
         { s: "2027-04-19", e: "2027-04-23", t: "段考（約）", k: "exam", est: true },
-        { s: "2027-04-24", e: "2027-04-25", t: "統測", k: "exam" },
+        { s: "2027-04-24", e: "2027-04-25", t: "統測", k: "exam", grad: true },
       ],
       nat: sharedYouthNat, ms: sharedYouthMs,
     },
@@ -448,6 +589,13 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
       title: "大學部",
       sub: "目標：3/7 雄鷹會。每個大學會 CR 1、VCR 2，加上廣布先鋒獎、廣布先鋒會的同學。",
       items: [
+        {
+          id: "u-1123", s: "2026-11-23", e: "2026-11-29", title: "人事提報第一波：已確定的人選先交",
+          todo: ["已經確定的 CR／VCR 人選，這週交人事報告書"],
+          why: "人事報告書要在全國區長會後一週內交，下個月任命。這週交，12 月就任命。",
+          lateLabel: "錯過會怎樣",
+          late: "還可以在 12/21–12/27 最後一波交，1 月任命；但那一波如果被退件，雄鷹會前就任命不了。",
+        },
         {
           id: "u-1220", s: "2026-12-20", title: "期末考前，把要當面做的事做完",
           todo: [
@@ -523,17 +671,17 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
           id: "g-1221", s: "2026-12-21", mtg: true, title: "人選、陪同者",
           todo: ["每個本部的國中班長、高中鳳雛長人選", "每位人選的陪同者"],
           why: "從找人、家訪、拿家長同意，到勤行從零練到認證，需要好幾個月。寒假約 1/21–2/10 是練勤行最好的時段，人選要在寒假前定下來。",
-          late: "等到全國 3/31 提報截止前才找人，勤行只剩 4、5 月可以練。偏偏 4 月有連假和段考，5 月國三要會考。",
+          late: "等到全國 3/31 提報截止前才找人，勤行只剩 4、5 月可以練。偏偏 4 月有連假和段考。",
         },
         {
           id: "g-0126", s: "2027-01-26", tent: true, mtg: true, title: "家長同意、每週練習開始",
           todo: ["家訪，取得家長同意", "確認勤行程度，排好每週固定練習時間，寒假開始練"],
-          why: "國中期末考約在 1/11–1/15（估計），家訪避開考試那週。寒假 1/21 開始，到春節前只有兩週可以練，所以 1/26 圈企畫會時，每週練習要已經開始。",
+          why: "國中期末考約在 1/11–1/15（估計），高中期末考 1/18–1/20，家訪避開考試那幾天。寒假 1/21 開始，到春節前只有兩週可以練，所以 1/26 圈企畫會時，每週練習要已經開始。",
         },
         {
           id: "g-break", s: "2027-01-21", e: "2027-02-10", title: "寒假：每週固定練勤行",
           todo: ["照排好的時間每週練習"],
-          why: "春節 2/4–2/10 在寒假後段，真正能練的大約是 1/21–2/3 這兩週。高三同學 1/22–1/24 要考學測。",
+          why: "春節 2/4–2/10 在寒假後段，真正能練的大約是 1/21–2/3 這兩週。",
         },
         {
           id: "g-0223", s: "2027-02-23", tent: true, mtg: true, title: "能順念方便品，開始寫信心履歷",
@@ -559,9 +707,9 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
         {
           id: "g-0416", s: "2027-04-16", nat: { d: "2027-05-31" }, title: "勤行認證通過",
           todo: ["每位國中班長、高中鳳雛長通過勤行認證"],
-          why: "4/3–4/6 兒童節・清明連假，約 4/19–4/23 段考，4/24–4/25 統測，4/30 勞動節補假。4 月真正能排的只有 4/7–4/16。",
-          late: "拖到 5 月，國三同學在準備 5/15–5/16 的會考，幾乎排不進任何事。",
-          warn: "基隆市國高中的行事曆沒找到，段考日期是估計值；4/30 國高中是否放補假也還沒確認。",
+          why: "4/3–4/6 兒童節・清明連假，約 4/19–4/23 段考，4/30 勞動節補假。段考前的 4/7–4/16 先認證，段考後的 4/24–4/29 留給沒通過的同學再認證一次。",
+          late: "拖到 5 月才認證，萬一沒通過，5/31 全國截止前很難再排一次。",
+          warn: "基隆市國高中第二學期的行事曆還沒找到，段考日期是估計值；4/30 國高中是否放補假也還沒確認。",
         },
       ],
     },
@@ -578,6 +726,10 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
   function saveShown() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify([...shown])); } catch (e) {}
   }
+  const GRAD_KEY = "kl-student-2027-grad-exams";
+  let showGrad = false;
+  try { showGrad = localStorage.getItem(GRAD_KEY) === "1"; } catch (e) {}
+  const gradHidden = (b) => Boolean(b.grad) && !showGrad;
   const today = todayTaipei();
   const showToday = dnum(today) >= S0 && dnum(today) < S0 + TOTAL;
 
@@ -623,7 +775,7 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
   const monthBody = el("div", "lb top");
   monthBody.style.height = "46px";
   addGrid(monthBody);
-  ["2026-12-01", "2027-01-01", "2027-02-01", "2027-03-01", "2027-04-01", "2027-05-01"].forEach((s) => {
+  [START, "2026-12-01", "2027-01-01", "2027-02-01", "2027-03-01", "2027-04-01", "2027-05-01"].forEach((s) => {
     const [y, m] = s.split("-").map(Number);
     const n = el("div", "mname", m + " 月");
     if (m === 12 || m === 1) n.appendChild(el("span", "yr", String(y)));
@@ -731,7 +883,7 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
 
     const BH = 24, BG = 4;
     const rows = [];
-    const bands = st.bands.slice().sort((a, b) => dnum(a.b.s) - dnum(b.b.s));
+    const bands = st.bands.filter((it) => !gradHidden(it.b)).sort((a, b) => dnum(a.b.s) - dnum(b.b.s));
     bands.forEach((it) => {
       it.x0 = X(it.b.s); it.x1 = XE(it.b.e);
       it.row = level(rows, it.x0, it.x1, 1);
@@ -891,11 +1043,11 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
     const all = [];
     lanes.forEach((L) => {
       if (L.key && !shown.has(L.key)) return;
-      L.ms.forEach((m) => { if (!m.ev && dnum(m.s) >= t) all.push({ L, m }); });
+      L.ms.forEach((m) => { if (!m.ev && dnum(m.e || m.s) >= t) all.push({ L, m }); });
     });
     if (!all.length) return;
-    const nd = Math.min(...all.map((a) => dnum(a.m.s)));
-    const hits = all.filter((a) => dnum(a.m.s) === nd);
+    const nd = Math.min(...all.map((a) => dnum(a.m.e || a.m.s)));
+    const hits = all.filter((a) => dnum(a.m.e || a.m.s) === nd);
     const byText = new Map();
     hits.forEach((h) => {
       const key = h.m.t;
@@ -903,7 +1055,7 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
       byText.get(key).push(h.L.label);
     });
     const desc = [...byText].map(([txt, labs]) => labs.join("、") + "：" + txt).join("；");
-    const s = hits[0].m.s;
+    const s = hits[0].m.e || hits[0].m.s;
     const days = nd - t;
     box.appendChild(el("span", "k", "下一個期限"));
     box.appendChild(el("span", "d", md(s)));
@@ -912,15 +1064,233 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
     box.hidden = false;
   }
 
+  const N0 = S0;
+  const N1 = S0 + TOTAL - 1;
+  const T = dnum(today);
+  const dateOf = (n) => new Date(n * 864e5);
+  const mdN = (n) => { const d = dateOf(n); return (d.getUTCMonth() + 1) + "/" + d.getUTCDate(); };
+  const wdN = (n) => WD[dateOf(n).getUTCDay()];
+  const rangeN = (a, b) => (a === b ? mdN(a) : mdN(a) + "–" + mdN(b));
+  const monthKey = (n) => { const d = dateOf(n); return d.getUTCFullYear() * 12 + d.getUTCMonth(); };
+  const DIV_NAME = { u: "大學部", j: "國中部", s: "高中部" };
+  const KIND_ORDER = { holiday: 0, exam: 1, break: 2, event: 2, mtg: 3, ms: 4, ev: 4, nat: 5 };
+  const KIND_ICON = { ms: "lg-dm", ev: "lg-ev", mtg: "lg-mtg", nat: "lg-ring" };
+  const MONTHS = [];
+  for (let n = N0; n <= N1; n++) {
+    const d = dateOf(n);
+    if (n === N0 || d.getUTCDate() === 1) MONTHS.push({ n, y: d.getUTCFullYear(), m: d.getUTCMonth() + 1 });
+  }
+  const holidayDays = new Set();
+  lanes.forEach((L) => {
+    if (L.key) return;
+    L.bands.forEach((b) => { for (let n = dnum(b.s); n <= dnum(b.e); n++) holidayDays.add(n); });
+  });
+
+  function divTag(keys) {
+    if (keys.size === 2 && keys.has("j") && keys.has("s")) return "國高中";
+    return [...keys].map((k) => DIV_NAME[k]).join("、");
+  }
+
+  function calItems() {
+    const merged = new Map();
+    function add(it, key) {
+      const id = [it.kind, it.s, it.e, it.t].join("|");
+      if (!merged.has(id)) merged.set(id, Object.assign({ keys: new Set() }, it));
+      if (key) merged.get(id).keys.add(key);
+    }
+    lanes.forEach((L) => {
+      if (L.key && !shown.has(L.key)) return;
+      L.bands.forEach((b) => gradHidden(b) || add({ kind: b.k, s: dnum(b.s), e: dnum(b.e), t: b.t, est: b.est, href: b.href }, L.key));
+      L.nat.forEach((x) => {
+        const at = dnum(x.type === "lead" ? x.to : x.at);
+        add({ kind: "nat", s: at, e: at, t: x.cal, est: x.type === "est" }, L.key);
+      });
+      L.ms.forEach((m) => add({ kind: m.ev ? "ev" : "ms", s: dnum(m.s), e: dnum(m.e || m.s), t: m.t, tent: m.tent, href: m.href }, L.key));
+    });
+    meetings.forEach((mt) => add({ kind: "mtg", s: dnum(mt.s), e: dnum(mt.s), t: "圈企畫會", tent: mt.tent }));
+    return [...merged.values()]
+      .map((it) => Object.assign(it, { tag: divTag(it.keys) }))
+      .sort((a, b) => KIND_ORDER[a.kind] - KIND_ORDER[b.kind] || a.s - b.s || (b.e - b.s) - (a.e - a.s));
+  }
+
+  function itemNode(it, withRange) {
+    const n = el(it.href ? "a" : "div", "cb k-" + it.kind + (it.est ? " est" : "") + (it.tent ? " tent" : ""));
+    if (it.href) n.href = "#" + it.href;
+    if (KIND_ICON[it.kind]) n.appendChild(el("i", KIND_ICON[it.kind] + (it.tent ? " tent" : "") + (it.est ? " est" : "")));
+    const label = it.t + (it.tent ? "（暫定）" : "");
+    const txt = el("span", "ct");
+    if (it.tag) txt.appendChild(el("b", "ctag", it.tag));
+    txt.appendChild(document.createTextNode(label));
+    if (withRange && it.e !== it.s && !label.includes(rangeN(it.s, it.e))) txt.appendChild(el("span", "cr num", rangeN(it.s, it.e)));
+    n.appendChild(txt);
+    const days = "週" + wdN(it.s) + (it.e !== it.s ? "～週" + wdN(it.e) : "");
+    n.title = rangeN(it.s, it.e) + "（" + days + "）" + (it.tag ? it.tag + "：" : "") + label;
+    return n;
+  }
+
+  const cg = document.getElementById("cg");
+  const ag = document.getElementById("ag");
+  const monthTargets = { grid: new Map(), list: new Map() };
+  const W0 = N0 - dateOf(N0).getUTCDay();
+  const WN = N1 + 6 - dateOf(N1).getUTCDay();
+
+  function renderGrid(items) {
+    cg.textContent = "";
+    monthTargets.grid.clear();
+    const head = el("div", "cg-head");
+    head.setAttribute("aria-hidden", "true");
+    head.appendChild(el("span"));
+    for (const c of WD) head.appendChild(el("span", null, c));
+    cg.appendChild(head);
+
+    for (let w = W0; w <= WN; w += 7) {
+      const wk = el("div", "cg-week");
+      wk.setAttribute("role", "group");
+      wk.setAttribute("aria-label", mdN(w) + "–" + mdN(w + 6) + " 這週");
+      const cm = el("div", "cm");
+      wk.appendChild(cm);
+      for (let c = 0; c < 7; c++) {
+        const n = w + c;
+        const dom = dateOf(n).getUTCDate();
+        const inRange = n >= N0 && n <= N1;
+        const cd = el("div", "cd");
+        cd.style.gridColumn = String(c + 2);
+        if (!inRange) cd.classList.add("out");
+        else {
+          if ((monthKey(n) - monthKey(N0)) % 2) cd.classList.add("alt");
+          if (dom <= 7 && w !== W0) cd.classList.add("edge-t");
+          if (dom === 1 && c > 0) cd.classList.add("edge-l");
+          if (holidayDays.has(n)) cd.classList.add("hol");
+          if (n === T) cd.classList.add("is-today");
+        }
+        if (inRange && (dom === 1 || n === N0)) {
+          const d = dateOf(n);
+          cm.classList.add("has");
+          cm.textContent = (d.getUTCMonth() + 1) + " 月";
+          if (n === N0 || d.getUTCMonth() === 0) cm.appendChild(el("small", "yr num", String(d.getUTCFullYear())));
+          monthTargets.grid.set(monthKey(n), wk);
+        }
+        cd.appendChild(el("span", "dn" + (dom === 1 ? " first" : ""), dom === 1 ? mdN(n) : String(dom)));
+        if (n === T) cd.appendChild(el("span", "tlab", "今天"));
+        wk.appendChild(cd);
+      }
+
+      const segs = items
+        .filter((it) => it.s <= w + 6 && it.e >= w)
+        .map((it) => ({ it, a: Math.max(it.s, w) - w, b: Math.min(it.e, w + 6) - w }));
+      const rows = [];
+      segs.forEach((sg) => {
+        let r = rows.findIndex((row) => row.every((o) => o.b < sg.a || o.a > sg.b));
+        if (r < 0) { r = rows.length; rows.push([]); }
+        rows[r].push(sg);
+        sg.r = r;
+      });
+      wk.style.gridTemplateRows = rows.length ? "30px repeat(" + rows.length + ", auto) minmax(10px, 1fr)" : "30px minmax(10px, 1fr)";
+      segs.sort((x, y) => x.r - y.r || x.a - y.a).forEach((sg) => {
+        const n = itemNode(sg.it, false);
+        n.style.gridColumn = (sg.a + 2) + " / " + (sg.b + 3);
+        n.style.gridRow = String(sg.r + 2);
+        if (sg.it.s < w) n.classList.add("cont-l");
+        if (sg.it.e > w + 6) n.classList.add("cont-r");
+        wk.appendChild(n);
+      });
+      cg.appendChild(wk);
+    }
+  }
+
+  function listRow(label, sub, list, cls) {
+    const li = el("li", "ag-row" + (cls ? " " + cls : ""));
+    const d = el("div", "ag-d");
+    d.appendChild(el("b", null, label));
+    d.appendChild(el("small", null, sub));
+    li.appendChild(d);
+    const box = el("div", "ag-items");
+    list.forEach((it) => box.appendChild(itemNode(it, true)));
+    li.appendChild(box);
+    return li;
+  }
+
+  function renderList(items) {
+    ag.textContent = "";
+    monthTargets.list.clear();
+    MONTHS.forEach((M, i) => {
+      const m0 = M.n;
+      const m1 = i + 1 < MONTHS.length ? MONTHS[i + 1].n - 1 : N1;
+      const sec = el("section", "ag-m");
+      sec.appendChild(el("h3", "ag-mh", M.y + " 年 " + M.m + " 月"));
+      monthTargets.list.set(monthKey(m0), sec);
+      const ol = el("ol", "ag-list");
+      const carry = items.filter((it) => it.s < m0 && it.e >= m0);
+      if (carry.length) ol.appendChild(listRow("延續", "從上月", carry, "carry"));
+      const byDay = new Map();
+      items.forEach((it) => {
+        if (it.s < m0 || it.s > m1) return;
+        if (!byDay.has(it.s)) byDay.set(it.s, []);
+        byDay.get(it.s).push(it);
+      });
+      const todayRow = () => el("li", "ag-today", "今天 " + mdN(T) + "（週" + wdN(T) + "）");
+      let todayPending = T >= m0 && T <= m1;
+      [...byDay.keys()].sort((a, b) => a - b).forEach((n) => {
+        if (todayPending && n > T) { ol.appendChild(todayRow()); todayPending = false; }
+        const cls = [holidayDays.has(n) ? "hol" : "", n === T ? "is-today" : ""].join(" ").trim();
+        if (n === T) todayPending = false;
+        ol.appendChild(listRow(mdN(n), "週" + wdN(n) + (n === T ? "・今天" : ""), byDay.get(n), cls));
+      });
+      if (todayPending) ol.appendChild(todayRow());
+      if (!ol.children.length) ol.appendChild(el("li", "ag-empty", "這個月沒有排事。"));
+      sec.appendChild(ol);
+      ag.appendChild(sec);
+    });
+  }
+
+  function renderCalendar() {
+    const items = calItems();
+    renderGrid(items);
+    renderList(items);
+  }
+
+  const jump = document.getElementById("jump");
+  MONTHS.forEach((M) => {
+    const b = el("button", "mj", M.m + " 月");
+    b.type = "button";
+    b.addEventListener("click", () => {
+      const key = M.y * 12 + M.m - 1;
+      const target = cg.getClientRects().length ? monthTargets.grid.get(key) : monthTargets.list.get(key);
+      if (!target) return;
+      const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      target.scrollIntoView({ block: "start", behavior: still ? "auto" : "smooth" });
+    });
+    jump.appendChild(b);
+  });
+
+  const VIEWS = ["timeline", "calendar"];
+  const viewLinks = [...document.querySelectorAll("[data-view]")];
+  function setView(v) {
+    VIEWS.forEach((k) => { document.getElementById("view-" + k).hidden = k !== v; });
+    viewLinks.forEach((a) => a.setAttribute("aria-current", a.dataset.view === v ? "true" : "false"));
+    if (v === "timeline") layout();
+  }
+  function viewFromHash() {
+    const h = location.hash.slice(1);
+    return VIEWS.includes(h) ? h : null;
+  }
+  window.addEventListener("hashchange", () => {
+    const v = viewFromHash();
+    if (v) setView(v);
+  });
+
   const allBtn = document.getElementById("tg-all");
-  const toggles = [...document.querySelectorAll(".div-toggle")];
+  const toggles = [...document.querySelectorAll(".div-toggle[data-key]")];
+  const gradBtn = document.getElementById("tg-grad");
 
   function applyFilter() {
     laneState.forEach((st) => {
       const off = Boolean(st.L.key) && !shown.has(st.L.key);
       st.label.hidden = off;
       st.body.hidden = off;
+      st.bands.forEach((it) => { it.r.hidden = it.lab.hidden = gradHidden(it.b); });
     });
+    gradBtn.setAttribute("aria-pressed", showGrad ? "true" : "false");
     document.getElementById("daxue").hidden = !shown.has("u");
     document.getElementById("guogao").hidden = !shown.has("j") && !shown.has("s");
     document.querySelectorAll("[data-sec]").forEach((a) => {
@@ -929,6 +1299,7 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
     toggles.forEach((b) => b.setAttribute("aria-pressed", shown.has(b.dataset.key) ? "true" : "false"));
     allBtn.hidden = shown.size === DIV_KEYS.length;
     renderNext();
+    renderCalendar();
     layout();
   }
 
@@ -938,6 +1309,11 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
     saveShown();
     applyFilter();
   }));
+  gradBtn.addEventListener("click", () => {
+    showGrad = !showGrad;
+    try { localStorage.setItem(GRAD_KEY, showGrad ? "1" : "0"); } catch (e) {}
+    applyFilter();
+  });
   allBtn.addEventListener("click", () => {
     shown = new Set(DIV_KEYS);
     saveShown();
@@ -945,6 +1321,7 @@ h1 { margin: 0; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.25; text-wra
   });
 
   renderSections();
+  setView(viewFromHash() || "timeline");
   applyFilter();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
   if (window.ResizeObserver) new ResizeObserver(layout).observe(monthBody);
